@@ -131,6 +131,26 @@ io.on('connection', (socket) => {
         if (room) room.placeBomb(socket.id);
     });
 
+    socket.on('toggleReady', () => {
+        const room = rooms.get(socket.roomCode);
+        if (room && room.toggleReady(socket.id)) {
+            io.to(socket.roomCode).emit('stateUpdate', room.getState());
+        }
+    });
+
+    socket.on('kickPlayer', (targetId) => {
+        const room = rooms.get(socket.roomCode);
+        if (room && room.hostId === socket.id && targetId !== socket.id) {
+            const targetSocket = io.sockets.sockets.get(targetId);
+            if (targetSocket) {
+                targetSocket.leave(socket.roomCode);
+                targetSocket.emit('error', 'You have been kicked from the room.');
+            }
+            room.removePlayer(targetId);
+            io.to(socket.roomCode).emit('stateUpdate', room.getState());
+        }
+    });
+
     socket.on('restartMatch', () => {
         const room = rooms.get(socket.roomCode);
         if (room && room.hostId === socket.id && room.gameState === 'ENDED') {
@@ -150,6 +170,7 @@ io.on('connection', (socket) => {
                 p.alive = true;
                 p.activeBombs = 0;
                 p.kills = 0;
+                p.ready = false;
             });
 
             io.to(socket.roomCode).emit('stateUpdate', room.getState());
@@ -173,6 +194,7 @@ io.on('connection', (socket) => {
                 p.alive = true;
                 p.activeBombs = 0;
                 p.kills = 0;
+                p.ready = false;
             });
 
             io.to(socket.roomCode).emit('stateUpdate', room.getState());

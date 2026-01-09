@@ -18,6 +18,7 @@ class GameRoom {
         this.matchFormat = options.matchFormat || 1; // 1, 3, 5, 7 rounds
         this.suddenDeathDuration = options.suddenDeathTimer || 120000; // milliseconds
         this.gameSpeed = options.gameSpeed || 1.0; // 1.0 = normal, 1.5 = fast, 2.0 = chaos
+        this.rewards = options.rewards || { first: '', second: '', third: '' };
 
         // Round Tracking
         this.currentRound = 1;
@@ -76,7 +77,8 @@ class GameRoom {
             bombRange: 2,
             isHost: this.players.size === 0,
             kills: 0,
-            lastDirection: 'DOWN' // Track last movement direction for bomb placement
+            lastDirection: 'DOWN', // Track last movement direction for bomb placement
+            ready: false
         };
 
         if (player.isHost) this.hostId = socketId;
@@ -104,6 +106,15 @@ class GameRoom {
         if (socketId === this.hostId && this.gameState === 'LOBBY') {
             this.gameState = 'PLAYING';
             this.matchStartTime = Date.now();
+            return true;
+        }
+        return false;
+    }
+
+    toggleReady(socketId) {
+        const player = this.players.get(socketId);
+        if (player && this.gameState === 'LOBBY') {
+            player.ready = !player.ready;
             return true;
         }
         return false;
@@ -350,7 +361,9 @@ class GameRoom {
             maxPlayers: this.maxPlayers,
             matchFormat: this.matchFormat,
             currentRound: this.currentRound,
-            roundWins: Object.fromEntries(this.roundWins)
+            roundWins: Object.fromEntries(this.roundWins),
+            rewards: this.rewards,
+            suddenDeathDuration: this.suddenDeathDuration
         };
     }
 }
