@@ -66,7 +66,8 @@ class GameRoom {
             activeBombs: 0,
             bombRange: 2,
             isHost: this.players.size === 0,
-            kills: 0
+            kills: 0,
+            lastDirection: 'DOWN' // Track last movement direction for bomb placement
         };
 
         if (player.isHost) this.hostId = socketId;
@@ -116,6 +117,7 @@ class GameRoom {
         if (!this.checkCollision(newX, newY, socketId)) {
             player.x = newX;
             player.y = newY;
+            player.lastDirection = direction; // Remember direction for bomb placement
         }
     }
 
@@ -125,10 +127,25 @@ class GameRoom {
         if (!player || !player.alive) return;
 
         if (player.activeBombs < player.maxBombs) {
-            const bx = Math.round(player.x);
-            const by = Math.round(player.y);
+            // Calculate bomb position based on last movement direction
+            let bx = Math.round(player.x);
+            let by = Math.round(player.y);
 
-            if (!this.bombs.some(b => b.x === bx && b.y === by)) {
+            // Place bomb one tile ahead in the direction player is facing
+            if (player.lastDirection === 'UP') by -= 1;
+            else if (player.lastDirection === 'DOWN') by += 1;
+            else if (player.lastDirection === 'LEFT') bx -= 1;
+            else if (player.lastDirection === 'RIGHT') bx += 1;
+
+            // Make sure bomb position is valid
+            if (bx < 0 || bx >= this.gridWidth || by < 0 || by >= this.gridHeight) {
+                // If out of bounds, place on player position
+                bx = Math.round(player.x);
+                by = Math.round(player.y);
+            }
+
+            // Check if position is empty (no wall, no other bomb)
+            if (this.grid[by][bx] === 0 && !this.bombs.some(b => b.x === bx && b.y === by)) {
                 this.bombs.push({
                     x: bx,
                     y: by,
