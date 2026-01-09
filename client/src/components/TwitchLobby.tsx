@@ -15,7 +15,7 @@ interface ServerStats {
 
 interface LobbyProps {
     onJoin: (roomCode: string) => void;
-    onCreate: (settings: { maxPlayers: number }) => void;
+    onCreate: (settings: { maxPlayers: number; matchFormat: number; suddenDeathTimer: number; gameSpeed: number }) => void;
     socket: any;
     user: TwitchUser | null;
     setUser: (user: TwitchUser | null) => void;
@@ -25,6 +25,9 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
     const [roomInput, setRoomInput] = useState('');
     const [stats, setStats] = useState<ServerStats>({ onlinePlayers: 0, activeRooms: 0, leaderboard: [] });
     const [maxPlayers, setMaxPlayers] = useState(4);
+    const [matchFormat, setMatchFormat] = useState(1);
+    const [suddenDeathTimer, setSuddenDeathTimer] = useState(120000);
+    const [gameSpeed, setGameSpeed] = useState(1.0);
 
     useEffect(() => {
         if (!socket) return;
@@ -101,15 +104,42 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="glass-card p-8 flex flex-col gap-6">
                             <h3 className="text-xl font-black italic text-green-400 uppercase">Host Game</h3>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Capacity</label>
-                                <div className="flex gap-2">
-                                    {[2, 4, 8].map(n => (
-                                        <button key={n} onClick={() => setMaxPlayers(n)} className={`flex-1 py-3 rounded-xl font-black transition-all ${maxPlayers === n ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>{n}P</button>
-                                    ))}
+                            <div className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Capacity</label>
+                                    <div className="flex gap-2">
+                                        {[2, 4, 8].map(n => (
+                                            <button key={n} onClick={() => setMaxPlayers(n)} className={`flex-1 py-2 rounded-xl font-black transition-all text-sm ${maxPlayers === n ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>{n}P</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Match Format</label>
+                                    <div className="flex gap-2">
+                                        {[1, 3, 5, 7].map(n => (
+                                            <button key={n} onClick={() => setMatchFormat(n)} className={`flex-1 py-2 rounded-xl font-black transition-all text-xs ${matchFormat === n ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>{n === 1 ? '1R' : `Bo${n}`}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Sudden Death</label>
+                                    <select value={suddenDeathTimer} onChange={(e) => setSuddenDeathTimer(Number(e.target.value))} className="bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm font-bold focus:border-green-500 outline-none">
+                                        <option value={120000}>2 Minutes</option>
+                                        <option value={180000}>3 Minutes</option>
+                                        <option value={300000}>5 Minutes</option>
+                                        <option value={-1}>Never</option>
+                                    </select>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Game Speed</label>
+                                    <div className="flex gap-2">
+                                        {[{ v: 1.0, l: 'Normal' }, { v: 1.5, l: 'Fast' }, { v: 2.0, l: 'Chaos' }].map(s => (
+                                            <button key={s.v} onClick={() => setGameSpeed(s.v)} className={`flex-1 py-2 rounded-xl font-black transition-all text-xs ${gameSpeed === s.v ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>{s.l}</button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <button onClick={() => onCreate({ maxPlayers })} className="btn-primary w-full justify-center !rounded-xl !bg-green-500 !text-black !shadow-none">CREATE ROOM</button>
+                            <button onClick={() => onCreate({ maxPlayers, matchFormat, suddenDeathTimer, gameSpeed })} className="btn-primary w-full justify-center !rounded-xl !bg-green-500 !text-black !shadow-none">CREATE ROOM</button>
                         </div>
 
                         <div className="glass-card p-8 flex flex-col gap-6">
