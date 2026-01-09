@@ -293,7 +293,8 @@ class GameRoom {
 
     checkWinCondition() {
         const alives = Array.from(this.players.values()).filter(p => p.alive);
-        if (alives.length <= 1 && this.players.size > 1) {
+        // Game ends if everyone is dead OR only 1 player remains in a room with >1 players
+        if (alives.length === 0 || (alives.length === 1 && this.players.size > 1)) {
             // Round winner
             const roundWinner = alives[0] ? alives[0].id : null;
 
