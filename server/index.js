@@ -131,6 +131,30 @@ io.on('connection', (socket) => {
         if (room) room.placeBomb(socket.id);
     });
 
+    socket.on('restartMatch', () => {
+        const room = rooms.get(socket.roomCode);
+        if (room && room.hostId === socket.id && room.gameState === 'ENDED') {
+            // Reset game to lobby
+            room.gameState = 'LOBBY';
+            room.winner = null;
+            room.grid = room.generateGrid();
+            room.bombs = [];
+            room.explosions = [];
+            room.suddenDeathIndex = 0;
+            room.lastSuddenDeathTick = 0;
+
+            // Reset all players
+            room.players.forEach(p => {
+                p.alive = true;
+                p.activeBombs = 0;
+                p.kills = 0;
+            });
+
+            io.to(socket.roomCode).emit('stateUpdate', room.getState());
+            sendStats();
+        }
+    });
+
     socket.on('disconnect', () => {
         const room = rooms.get(socket.roomCode);
         if (room) {
@@ -155,19 +179,7 @@ setInterval(() => {
             if (room.gameState === 'ENDED') {
                 updateLeaderboard(room);
                 io.to(code).emit('stateUpdate', room.getState());
-                setTimeout(() => {
-                    room.gameState = 'LOBBY';
-                    room.winner = null;
-                    room.grid = room.generateGrid();
-                    room.bombs = [];
-                    room.explosions = [];
-                    room.players.forEach(p => {
-                        p.alive = true;
-                        p.activeBombs = 0;
-                        p.kills = 0;
-                    });
-                    io.to(code).emit('stateUpdate', room.getState());
-                }, 5000);
+                // Game stays in ENDED state until host restarts
             }
         }
     });

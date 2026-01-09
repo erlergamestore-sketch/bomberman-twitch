@@ -132,6 +132,65 @@ function GameApp() {
                 )}
               </div>
             )}
+
+            {/* Spectator Mode - Dead Player */}
+            {roomData?.gameState === 'PLAYING' && roomData.players.find((p: any) => p.id === socket?.id && !p.alive) && (
+              <div className="self-center glass-card p-8 flex flex-col items-center gap-4 pointer-events-auto border-red-500/40 animate-in fade-in zoom-in duration-300">
+                <div className="text-red-500 font-black text-2xl uppercase tracking-widest animate-pulse">💀 ELIMINATED 💀</div>
+                <div className="text-gray-400 font-bold text-sm">Spectating...</div>
+                <div className="flex flex-col gap-2 mt-4">
+                  <div className="text-white font-black text-xs uppercase">Still Alive:</div>
+                  {roomData.players.filter((p: any) => p.alive).map((p: any) => (
+                    <div key={p.id} className="flex items-center gap-2">
+                      <img src={p.avatar} className="w-6 h-6 rounded-lg" />
+                      <span className="text-xs text-gray-300">{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Winner Screen */}
+            {roomData?.gameState === 'ENDED' && (
+              <div className="self-center glass-card p-12 flex flex-col items-center gap-6 pointer-events-auto border-yellow-500/60 animate-in fade-in zoom-in duration-500">
+                <div className="text-yellow-400 font-black text-4xl uppercase tracking-widest animate-pulse">🏆 VICTORY 🏆</div>
+                {roomData.winner && (() => {
+                  const winner = roomData.players.find((p: any) => p.id === roomData.winner);
+                  return winner ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <img src={winner.avatar} className="w-24 h-24 rounded-2xl border-4 border-yellow-400 shadow-[0_0_40px_rgba(250,204,21,0.6)]" />
+                      <div className="text-white font-black text-2xl">{winner.name}</div>
+                      <div className="text-gray-400 text-sm">Kills: {winner.kills}</div>
+                    </div>
+                  ) : null;
+                })()}
+
+                <div className="mt-4 flex flex-col gap-2">
+                  <div className="text-white font-black text-xs uppercase text-center">Final Stats:</div>
+                  {roomData.players.sort((a: any, b: any) => b.kills - a.kills).map((p: any, i: number) => (
+                    <div key={p.id} className="flex items-center gap-3 text-sm">
+                      <span className="text-gray-500 font-bold">#{i + 1}</span>
+                      <img src={p.avatar} className="w-6 h-6 rounded-lg" />
+                      <span className="text-gray-300 flex-1">{p.name}</span>
+                      <span className="text-purple-400 font-bold">{p.kills} kills</span>
+                    </div>
+                  ))}
+                </div>
+
+                {roomData.hostId === socket?.id ? (
+                  <button
+                    onClick={() => socket?.emit('restartMatch')}
+                    className="mt-6 px-12 py-4 bg-green-600 hover:bg-green-500 text-white font-black text-xl rounded-full shadow-[0_0_40px_rgba(34,197,94,0.4)] transition-all active:scale-95 uppercase tracking-widest"
+                  >
+                    RESTART MATCH
+                  </button>
+                ) : (
+                  <div className="mt-6 px-8 py-3 bg-white/5 rounded-full text-gray-400 font-black italic text-sm animate-pulse">
+                    Waiting for host to restart...
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <GameCanvas />
