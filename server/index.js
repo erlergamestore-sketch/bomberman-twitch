@@ -142,6 +142,8 @@ io.on('connection', (socket) => {
             room.explosions = [];
             room.suddenDeathIndex = 0;
             room.lastSuddenDeathTick = 0;
+            room.currentRound = 1;
+            room.roundWins.clear();
 
             // Reset all players
             room.players.forEach(p => {
@@ -152,6 +154,28 @@ io.on('connection', (socket) => {
 
             io.to(socket.roomCode).emit('stateUpdate', room.getState());
             sendStats();
+        }
+    });
+
+    socket.on('nextRound', () => {
+        const room = rooms.get(socket.roomCode);
+        if (room && room.hostId === socket.id && room.gameState === 'ROUND_END') {
+            room.currentRound++;
+            room.gameState = 'LOBBY';
+            room.winner = null;
+            room.grid = room.generateGrid();
+            room.bombs = [];
+            room.explosions = [];
+            room.suddenDeathIndex = 0;
+            room.lastSuddenDeathTick = 0;
+
+            room.players.forEach(p => {
+                p.alive = true;
+                p.activeBombs = 0;
+                p.kills = 0;
+            });
+
+            io.to(socket.roomCode).emit('stateUpdate', room.getState());
         }
     });
 

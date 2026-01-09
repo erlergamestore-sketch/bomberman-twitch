@@ -14,9 +14,18 @@ class GameRoom {
         this.hostId = null;
         this.winner = null;
 
+        // Tournament Settings
+        this.matchFormat = options.matchFormat || 1; // 1, 3, 5, 7 rounds
+        this.suddenDeathDuration = options.suddenDeathTimer || 120000; // milliseconds
+        this.gameSpeed = options.gameSpeed || 1.0; // 1.0 = normal, 1.5 = fast, 2.0 = chaos
+
+        // Round Tracking
+        this.currentRound = 1;
+        this.roundWins = new Map(); // playerId -> wins count
+
         // Game Mechanics
         this.matchStartTime = 0;
-        this.suddenDeathTimer = 120000; // 2 minutes until sudden death starts
+        this.suddenDeathTimer = this.suddenDeathDuration;
         this.suddenDeathIndex = 0;
         this.lastSuddenDeathTick = 0;
     }
@@ -107,7 +116,7 @@ class GameRoom {
 
         let newX = player.x;
         let newY = player.y;
-        const speed = 0.15;
+        const speed = 0.15 * this.gameSpeed;
 
         if (direction === 'UP') newY -= speed;
         if (direction === 'DOWN') newY += speed;
@@ -274,8 +283,27 @@ class GameRoom {
     checkWinCondition() {
         const alives = Array.from(this.players.values()).filter(p => p.alive);
         if (alives.length <= 1 && this.players.size > 1) {
-            this.gameState = 'ENDED';
-            this.winner = alives[0] ? alives[0].id : null;
+            // Round winner
+            const roundWinner = alives[0] ? alives[0].id : null;
+
+            if (roundWinner) {
+                const wins = this.roundWins.get(roundWinner) || 0;
+                this.roundWins.set(roundWinner, wins + 1);
+            }
+
+            // Check if tournament is complete
+            const requiredWins = Math.ceil(this.matchFormat / 2);
+            const maxWins = Math.max(...Array.from(this.roundWins.values()), 0);
+
+            if (maxWins >= requiredWins) {
+                // Tournament complete
+                this.gameState = 'ENDED';
+                this.winner = roundWinner;
+            } else {
+                // Next round
+                this.gameState = 'ROUND_END';
+                this.winner = roundWinner;
+            }
         }
     }
 
@@ -318,7 +346,11 @@ class GameRoom {
             gameState: this.gameState,
             hostId: this.hostId,
             winner: this.winner,
-            roomCode: this.roomId
+            roomCode: this.roomId,
+            maxPlayers: this.maxPlayers,
+            matchFormat: this.matchFormat,
+            currentRound: this.currentRound,
+            roundWins: Object.fromEntries(this.roundWins)
         };
     }
 }
