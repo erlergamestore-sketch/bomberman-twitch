@@ -106,14 +106,14 @@ class GameRoom {
 
         let newX = player.x;
         let newY = player.y;
-        const speed = 0.2;
+        const speed = 0.15;
 
         if (direction === 'UP') newY -= speed;
         if (direction === 'DOWN') newY += speed;
         if (direction === 'LEFT') newX -= speed;
         if (direction === 'RIGHT') newX += speed;
 
-        if (!this.checkCollision(newX, newY)) {
+        if (!this.checkCollision(newX, newY, socketId)) {
             player.x = newX;
             player.y = newY;
         }
@@ -272,11 +272,20 @@ class GameRoom {
         return this.grid[y][x] === 2;
     }
 
-    checkCollision(x, y) {
+    checkCollision(x, y, playerId = null) {
         const gx = Math.round(x);
         const gy = Math.round(y);
         if (gx < 0 || gx >= this.gridWidth || gy < 0 || gy >= this.gridHeight) return true;
-        return this.grid[gy][gx] !== 0 || this.bombs.some(b => b.x === gx && b.y === gy);
+
+        // Check grid collision
+        if (this.grid[gy][gx] !== 0) return true;
+
+        // Check bomb collision, but allow walking through bombs you just placed
+        const bombAtPos = this.bombs.find(b => b.x === gx && b.y === gy);
+        if (bombAtPos && bombAtPos.ownerId !== playerId) return true;
+        if (bombAtPos && bombAtPos.timer < 2500) return true; // After 0.5s, bomb becomes solid
+
+        return false;
     }
 
     getPlayerColor(i) {
