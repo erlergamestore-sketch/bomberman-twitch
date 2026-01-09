@@ -69,10 +69,10 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
                             The ultimate battle royale for Twitch Streamers.
                         </p>
 
-                        <button onClick={handleTwitchLogin} className="group relative px-16 py-8 bg-purple-600 hover:bg-purple-500 rounded-full transition-all duration-300 active:scale-95 shadow-[0_0_50px_rgba(145,70,255,0.3)]">
-                            <div className="flex items-center gap-5">
-                                <svg className="w-10 h-10 fill-current text-white" viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0h1.714v5.143h-1.714zm-10.286 0H7.714v5.143H6.014zm1.715 13.714h1.715v1.714H9.429zm3.428 0h1.715v1.714h-1.715zm10.286-12h-1.714v9h-1.715v1.714h-1.714v1.715h-1.715v-1.715H1.714V1.714h18.857L24 5.143v10.286h-3.429v1.714h-1.714V24l-3.429-3.429h-3.428L10.286 24l-3.429-3.429H1.714V17.143h1.715v1.714h1.714v-13.714H1.714V2.571h1.715V.857h1.714v4.286zm0 0"></path></svg>
-                                <span className="text-3xl font-black text-white uppercase tracking-[0.2em]">Enter Arena</span>
+                        <button onClick={handleTwitchLogin} className="group relative px-16 py-6 bg-purple-600 hover:bg-purple-500 rounded-full transition-all duration-300 active:scale-95 shadow-[0_0_50px_rgba(145,70,255,0.3)]">
+                            <div className="flex items-center gap-4">
+                                <svg className="w-8 h-8 fill-current text-white" viewBox="0 0 24 24"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0h1.714v5.143h-1.714zm-10.286 0H7.714v5.143H6.014zm1.715 13.714h1.715v1.714H9.429zm3.428 0h1.715v1.714h-1.715zm10.286-12h-1.714v9h-1.715v1.714h-1.714v1.715h-1.715v-1.715H1.714V1.714h18.857L24 5.143v10.286h-3.429v1.714h-1.714V24l-3.429-3.429h-3.428L10.286 24l-3.429-3.429H1.714V17.143h1.715v1.714h1.714v-13.714H1.714V2.571h1.715V.857h1.714v4.286zm0 0"></path></svg>
+                                <span className="text-2xl font-black text-white uppercase tracking-[0.2em]">Enter Arena</span>
                             </div>
                         </button>
                     </div>
