@@ -15,7 +15,7 @@ interface ServerStats {
 
 interface LobbyProps {
     onJoin: (roomCode: string) => void;
-    onCreate: (settings: { maxPlayers: number; matchFormat: number; suddenDeathTimer: number; gameSpeed: number }) => void;
+    onCreate: (settings: { maxPlayers: number; matchFormat: number; suddenDeathTimer: number; gameSpeed: number; rewards?: { first: string; second: string; third: string } }) => void;
     socket: any;
     user: TwitchUser | null;
     setUser: (user: TwitchUser | null) => void;
@@ -27,7 +27,9 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
     const [maxPlayers, setMaxPlayers] = useState(4);
     const [matchFormat, setMatchFormat] = useState(1);
     const [suddenDeathTimer, setSuddenDeathTimer] = useState(120000);
-    const [gameSpeed, setGameSpeed] = useState(1.0);
+    const [reward1st, setReward1st] = useState('');
+    const [reward2nd, setReward2nd] = useState('');
+    const [reward3rd, setReward3rd] = useState('');
 
     useEffect(() => {
         if (!socket) return;
@@ -115,10 +117,11 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Match Format</label>
-                                    <div className="flex gap-2">
-                                        {[1, 3, 5, 7].map(n => (
-                                            <button key={n} onClick={() => setMatchFormat(n)} className={`flex-1 py-2 rounded-xl font-black transition-all text-xs ${matchFormat === n ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>{n === 1 ? '1R' : `Bo${n}`}</button>
-                                        ))}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button onClick={() => setMatchFormat(1)} className={`py-2 rounded-xl font-bold transition-all text-xs ${matchFormat === 1 ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>1 Round</button>
+                                        <button onClick={() => setMatchFormat(3)} className={`py-2 rounded-xl font-bold transition-all text-xs ${matchFormat === 3 ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>Best of 3</button>
+                                        <button onClick={() => setMatchFormat(5)} className={`py-2 rounded-xl font-bold transition-all text-xs ${matchFormat === 5 ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>Best of 5</button>
+                                        <button onClick={() => setMatchFormat(7)} className={`py-2 rounded-xl font-bold transition-all text-xs ${matchFormat === 7 ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>Best of 7</button>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2">
@@ -131,15 +134,19 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
                                     </select>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Game Speed</label>
-                                    <div className="flex gap-2">
-                                        {[{ v: 1.0, l: 'Normal' }, { v: 1.5, l: 'Fast' }, { v: 2.0, l: 'Chaos' }].map(s => (
-                                            <button key={s.v} onClick={() => setGameSpeed(s.v)} className={`flex-1 py-2 rounded-xl font-black transition-all text-xs ${gameSpeed === s.v ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10'}`}>{s.l}</button>
-                                        ))}
-                                    </div>
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">1st Place Reward</label>
+                                    <input type="text" value={reward1st} onChange={(e) => setReward1st(e.target.value)} placeholder="e.g. VIP Status" className="bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-green-500 outline-none" />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">2nd Place Reward</label>
+                                    <input type="text" value={reward2nd} onChange={(e) => setReward2nd(e.target.value)} placeholder="e.g. Gift Sub" className="bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-green-500 outline-none" />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">3rd Place Reward</label>
+                                    <input type="text" value={reward3rd} onChange={(e) => setReward3rd(e.target.value)} placeholder="e.g. Shoutout" className="bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-green-500 outline-none" />
                                 </div>
                             </div>
-                            <button onClick={() => onCreate({ maxPlayers, matchFormat, suddenDeathTimer, gameSpeed })} className="btn-primary w-full justify-center !rounded-xl !bg-green-500 !text-black !shadow-none">CREATE ROOM</button>
+                            <button onClick={() => onCreate({ maxPlayers, matchFormat, suddenDeathTimer, gameSpeed: 1.0, rewards: { first: reward1st, second: reward2nd, third: reward3rd } })} className="btn-primary w-full justify-center !rounded-xl !bg-green-500 !text-black !shadow-none">CREATE ROOM</button>
                         </div>
 
                         <div className="glass-card p-8 flex flex-col gap-6">
