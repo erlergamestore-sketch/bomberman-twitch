@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: bomberman-server
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: CLIENT_ORIGIN
+        sync: false
