@@ -8,46 +8,51 @@ interface AdsterraBannerProps {
 }
 
 export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({ adKey, width, height, className = '' }) => {
-    const bannerRef = useRef<HTMLDivElement>(null);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
 
     useEffect(() => {
-        if (!bannerRef.current) return;
+        const iframe = iframeRef.current;
+        if (!iframe) return;
 
-        // Clear previous content
-        bannerRef.current.innerHTML = '';
+        const doc = iframe.contentWindow?.document;
+        if (!doc) return;
 
-        // Create the configuration script
-        const confScript = document.createElement('script');
-        confScript.type = 'text/javascript';
-        confScript.innerHTML = `
-            atOptions = {
-                'key' : '${adKey}',
-                'format' : 'iframe',
-                'height' : ${height},
-                'width' : ${width},
-                'params' : {}
-            };
-        `;
-
-        // Create the invocation script
-        const invokeScript = document.createElement('script');
-        invokeScript.type = 'text/javascript';
-        invokeScript.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
-        invokeScript.async = true;
-
-        // Append to the container
-        bannerRef.current.appendChild(confScript);
-        bannerRef.current.appendChild(invokeScript);
+        // Reset iframe content
+        doc.open();
+        doc.write(`
+            <!DOCTYPE html>
+            <html style="margin:0;padding:0;overflow:hidden;">
+            <head>
+                <style>body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; }</style>
+            </head>
+            <body>
+                <script type="text/javascript">
+                    var atOptions = {
+                        'key' : '${adKey}',
+                        'format' : 'iframe',
+                        'height' : ${height},
+                        'width' : ${width},
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/${adKey}/invoke.js"></script>
+            </body>
+            </html>
+        `);
+        doc.close();
 
     }, [adKey, width, height]);
 
     return (
-        <div
-            ref={bannerRef}
-            className={`adsterra-banner flex justify-center items-center bg-black/20 rounded-xl overflow-hidden ${className}`}
-            style={{ width: `${width}px`, height: `${height}px` }}
-        >
-            {/* Ads will be injected here */}
+        <div className={`adsterra-banner flex justify-center items-center bg-transparent rounded-xl overflow-hidden ${className}`} style={{ width: width, height: height }}>
+            <iframe
+                ref={iframeRef}
+                width={width}
+                height={height}
+                style={{ border: 'none', overflow: 'hidden' }}
+                scrolling="no"
+                title={`ad-${adKey}`}
+            />
         </div>
     );
 };
