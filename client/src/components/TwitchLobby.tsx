@@ -60,7 +60,7 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
 
             {/* Adsterra Banner (Top - 728x90) */}
             <div className="z-20 mb-8">
-                <AdsterraBanner adKey="YOUR_ADSTERRA_KEY_728x90" width={728} height={90} className="border border-white/10 shadow-2xl" />
+                <AdsterraBanner adKey="3dbdc6dd9143d6e4ed4635d6177fdf91" width={728} height={90} className="border border-white/10 shadow-2xl" />
             </div>
 
             {!user ? (
@@ -168,7 +168,7 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
                     </div>
 
                     <div className="glass-card p-6">
-                        <AdsterraBanner adKey="YOUR_ADSTERRA_KEY_300x250" width={300} height={250} className="mx-auto mb-6 border border-white/5" />
+                        <AdsterraBanner adKey="cfefb5e03b00b9c3ea56f4bd3048fb2e" width={300} height={250} className="mx-auto mb-6 border border-white/5" />
                         <h4 className="text-xs font-black text-center text-gray-500 uppercase tracking-[0.4em] mb-6">Combat Leaderboard</h4>
                         {stats.leaderboard.length > 0 ? (
                             <div className="flex flex-col gap-2">
