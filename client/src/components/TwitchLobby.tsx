@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { LegalInfo } from './LegalInfo';
+import { AdsterraBanner } from './AdsterraBanner';
 
 interface TwitchUser {
     id: string;
@@ -30,6 +32,7 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
     const [reward1st, setReward1st] = useState('');
     const [reward2nd, setReward2nd] = useState('');
     const [reward3rd, setReward3rd] = useState('');
+    const [showLegal, setShowLegal] = useState(false);
 
     useEffect(() => {
         if (!socket) return;
@@ -50,10 +53,15 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
     };
 
     return (
-        <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-6 bg-[#0a0a0a]">
+        <div className="relative min-h-screen w-full flex flex-col items-center py-12 px-6 bg-[#0a0a0a]">
             {/* Ambient Background */}
             <div className="bg-glow-orb top-[-20%] left-[-10%] bg-purple-600" />
             <div className="bg-glow-orb bottom-[-20%] right-[-10%] bg-indigo-600" style={{ animationDelay: '-5s' }} />
+
+            {/* Adsterra Banner (Top - 728x90) */}
+            <div className="z-20 mb-8">
+                <AdsterraBanner adKey="YOUR_ADSTERRA_KEY_728x90" width={728} height={90} className="border border-white/10 shadow-2xl" />
+            </div>
 
             {!user ? (
                 <div className="z-10 flex flex-col items-center gap-12 max-w-6xl text-center">
@@ -160,6 +168,7 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
                     </div>
 
                     <div className="glass-card p-6">
+                        <AdsterraBanner adKey="YOUR_ADSTERRA_KEY_300x250" width={300} height={250} className="mx-auto mb-6 border border-white/5" />
                         <h4 className="text-xs font-black text-center text-gray-500 uppercase tracking-[0.4em] mb-6">Combat Leaderboard</h4>
                         {stats.leaderboard.length > 0 ? (
                             <div className="flex flex-col gap-2">
@@ -181,6 +190,14 @@ export const TwitchLobby: React.FC<LobbyProps> = ({ onJoin, onCreate, socket, us
                     </div>
                 </div>
             )}
+
+            {/* Footer Legal Links */}
+            <div className="z-10 mt-12 flex gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
+                <button onClick={() => setShowLegal(true)} className="hover:text-purple-400 transition-colors">Impressum</button>
+                <button onClick={() => setShowLegal(true)} className="hover:text-purple-400 transition-colors">Privacy Policy</button>
+            </div>
+
+            {showLegal && <LegalInfo onClose={() => setShowLegal(false)} />}
         </div>
     );
 };
